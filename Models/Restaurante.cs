@@ -1,4 +1,5 @@
-﻿namespace prjComanda.Models
+﻿using System.Globalization;
+namespace prjComanda.Models
 {
     public class Restaurante
     {
@@ -13,13 +14,20 @@
 
         public void AbrirRestaurante(int quantidadeMesas)
         {
-            TotalVendas = 0;
-            for (int i = 0; i < quantidadeMesas; i++)
+            if (quantidadeMesas > 0)
             {
-                mesas.Add(new Mesa());
+                TotalVendas = 0;
+                for (int i = 0; i < quantidadeMesas; i++)
+                {
+                    mesas.Add(new Mesa());
+                }
+                Console.WriteLine("Restaurante aberto com sucesso!");
             }
-            Console.WriteLine("Restaurante aberto com sucesso!");
-            Console.ReadLine();
+            else
+            {
+                Console.WriteLine("A quantidade de mesas deve ser maior que zero");
+            }
+            Console.ReadKey();
         }
 
         public void ListarMesas()
@@ -27,9 +35,11 @@
             for (int i = 0; i < mesas.Count; i++)
             {
                 Console.WriteLine($"Mesa {i + 1} - {(mesas[i].Ocupada ? "Ocupada" : "Disponível")}");
-                
+
             }
-            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("Pressione qualquer tecla para continuar...");
+            Console.ReadKey();
         }
 
         public void AbrirMesa(int numeroMesa)
@@ -89,8 +99,10 @@
 
 
                     mesa.Ocupada = false;
-                    decimal totalMesa = mesa.Comanda.CalcularTotal();                 
+                    decimal totalMesa = mesa.Comanda.CalcularTotal();
                     TotalVendas = TotalVendas + totalMesa;
+                    mesa.Comanda.ListarItensComanda();
+                    Console.WriteLine("".PadRight(40, '-'));
                     Console.WriteLine($"Total da mesa {numeroMesa + 1}: R${totalMesa}");
                     Console.WriteLine($"Mesa {numeroMesa + 1} fechada com sucesso!");
                     Console.ReadLine();
@@ -121,23 +133,56 @@
             Console.WriteLine($"Total de vendas do dia: R${TotalVendas}");
             Console.ReadLine();
         }
-        
+
         public void CriarProdutos()
         {
-            produtos.Add(new Produto() { Codigo = "1", Nome = "Cerveja 600ML", Preco = 12.9M} );
+            produtos.Add(new Produto() { Codigo = "1", Nome = "Cerveja 600ML", Preco = 12.9M });
             produtos.Add(new Produto() { Codigo = "2", Nome = "Refrigerante lata", Preco = 5.5M });
             produtos.Add(new Produto() { Codigo = "3", Nome = "Batata Frita 500g", Preco = 28.9M });
             produtos.Add(new Produto() { Codigo = "4", Nome = "Água", Preco = 5M });
             produtos.Add(new Produto() { Codigo = "5", Nome = "Sanduíche", Preco = 10.9M });
+            produtos.Add(new Produto() { Codigo = "6", Nome = "Suco (Copo 300ml)", Preco = 7.9M });
         }
 
         public void ExibirCardapio()
         {
+            Console.WriteLine("");
             for (int i = 0; i < produtos.Count; i++)
             {
-                Console.WriteLine($"{produtos[i].Nome.PadRight(20,'.')} - {produtos[i].Preco} ");
+                Console.WriteLine($"{produtos[i].Codigo.PadLeft(5, ' ')} : {produtos[i].Nome.PadRight(30, '.')} - {produtos[i].Preco.ToString("C", CultureInfo.CurrentCulture)}");
             }
-            Console.ReadLine();
+        }
+
+        public void CadastrarProduto(string nome, decimal preco)
+        {
+            int codigo = produtos.Count;
+            produtos.Add(new Produto() { Codigo = codigo.ToString(), Nome = nome, Preco = preco });
+        }
+
+        public Produto BuscarProduto(string codigo)
+        {
+            Produto prod = produtos.Find(p => p.Codigo == codigo);
+            if (prod != null)
+            {
+                return prod;
+            }
+            {
+                Console.WriteLine("Produto não encontrado.");
+                return null;
+            }
+        }
+
+        public bool ExisteMesa(int codigo)
+        {
+            Console.WriteLine(codigo);
+            Console.WriteLine("aaa");
+            return (codigo >= 0 && codigo < mesas.Count);
+        }
+
+        public bool MesaAberta(int codigo)
+        {
+            Console.WriteLine(codigo);
+            return (mesas[codigo].Ocupada);
         }
     }
 

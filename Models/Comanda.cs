@@ -1,3 +1,4 @@
+using System.Globalization;
 namespace prjComanda.Models
 {
     public class ItemComanda
@@ -18,18 +19,18 @@ namespace prjComanda.Models
             {
                 CodigoProduto = produto.Codigo,
                 Quantidade = quantidade,
+                Descricao = produto.Nome,
                 Total = produto.Preco * quantidade
             };
 
             itens.Add(item);
         }
 
-        public void ObterItens()
+        public void ListarItensComanda()
         {
-            foreach (ItemComanda item in itens)
+            foreach (var item in itens)
             {
-                Console.WriteLine($"{item.Descricao.PadRight(20, '.')}");
-
+                Console.WriteLine($"{item.Descricao.PadRight(30, '.')} - {item.Total.ToString("C", CultureInfo.CurrentCulture)}");
             }
         }
 
