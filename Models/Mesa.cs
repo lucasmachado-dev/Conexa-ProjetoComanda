@@ -1,7 +1,5 @@
 ﻿namespace prjComanda.Models
 {
-
-
     public class Mesa
     {
         public bool Ocupada { get; set; }

@@ -27,19 +27,21 @@ namespace prjComanda.Models
             {
                 Console.WriteLine("A quantidade de mesas deve ser maior que zero");
             }
-            Console.ReadKey();
+            Util.Continuar();
         }
 
-        public void ListarMesas()
+        public void ListarMesas(bool continuar = true)
         {
             for (int i = 0; i < mesas.Count; i++)
             {
                 Console.WriteLine($"Mesa {i + 1} - {(mesas[i].Ocupada ? "Ocupada" : "Disponível")}");
 
             }
-            Console.WriteLine();
-            Console.WriteLine("Pressione qualquer tecla para continuar...");
-            Console.ReadKey();
+            if (continuar)
+            {
+                Util.Continuar();
+            }
+
         }
 
         public void AbrirMesa(int numeroMesa)
@@ -49,12 +51,12 @@ namespace prjComanda.Models
                 mesas[numeroMesa].Ocupada = true;
                 mesas[numeroMesa].Comanda = new Comanda();
                 Console.WriteLine($"Mesa {numeroMesa + 1} aberta com sucesso!");
-                Console.ReadLine();
+                Util.Continuar();
             }
             else
             {
                 Console.WriteLine("Mesa inválida!");
-                Console.ReadLine();
+                Util.Continuar();
             }
         }
 
@@ -67,18 +69,18 @@ namespace prjComanda.Models
                 {
                     mesa.Comanda.AdicionarItem(produto, quantidade);
                     Console.WriteLine($"Item adicionado à comanda da mesa {numeroMesa + 1}");
-                    Console.ReadLine();
+                    Util.Continuar();
                 }
                 else
                 {
                     Console.WriteLine("Esta mesa não está ocupada!");
-                    Console.ReadLine();
+                    Util.Continuar();
                 }
             }
             else
             {
                 Console.WriteLine("Mesa inválida!");
-                Console.ReadLine();
+                Util.Continuar();
             }
         }
 
@@ -89,34 +91,25 @@ namespace prjComanda.Models
                 Mesa mesa = mesas[numeroMesa];
                 if (mesa.Ocupada)
                 {
-                    {
-                        if (mesa.Ocupada)
-                        {
-                            TotalVendas += mesa.Comanda.CalcularTotal();
-                            mesa.Ocupada = false;
-                        }
-                    }
-
-
                     mesa.Ocupada = false;
                     decimal totalMesa = mesa.Comanda.CalcularTotal();
-                    TotalVendas = TotalVendas + totalMesa;
+                    TotalVendas += + totalMesa;
                     mesa.Comanda.ListarItensComanda();
-                    Console.WriteLine("".PadRight(40, '-'));
+                    Console.WriteLine("".PadRight(60, '-'));
                     Console.WriteLine($"Total da mesa {numeroMesa + 1}: R${totalMesa}");
                     Console.WriteLine($"Mesa {numeroMesa + 1} fechada com sucesso!");
-                    Console.ReadLine();
+                    Util.Continuar();
                 }
                 else
                 {
                     Console.WriteLine("Esta mesa não está ocupada!");
-                    Console.ReadLine();
+                    Util.Continuar();
                 }
             }
             else
             {
                 Console.WriteLine("Mesa inválida!");
-                Console.ReadLine();
+                Util.Continuar();
             }
         }
 
@@ -131,7 +124,8 @@ namespace prjComanda.Models
                 }
             }
             Console.WriteLine($"Total de vendas do dia: R${TotalVendas}");
-            Console.ReadLine();
+            mesas.Clear();
+            Util.Continuar();
         }
 
         public void CriarProdutos()
@@ -146,6 +140,7 @@ namespace prjComanda.Models
 
         public void ExibirCardapio()
         {
+            Util.CabecalhoMenu("Cardápio");
             Console.WriteLine("");
             for (int i = 0; i < produtos.Count; i++)
             {
@@ -174,14 +169,11 @@ namespace prjComanda.Models
 
         public bool ExisteMesa(int codigo)
         {
-            Console.WriteLine(codigo);
-            Console.WriteLine("aaa");
             return (codigo >= 0 && codigo < mesas.Count);
         }
 
         public bool MesaAberta(int codigo)
         {
-            Console.WriteLine(codigo);
             return (mesas[codigo].Ocupada);
         }
     }

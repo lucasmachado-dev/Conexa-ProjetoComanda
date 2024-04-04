@@ -1,4 +1,5 @@
-﻿using prjComanda.Models;
+﻿using prjComanda;
+using prjComanda.Models;
 
 class Program
 {
@@ -6,11 +7,11 @@ class Program
     {
         Restaurante restaurante = new Restaurante();
 
-        int opcao;
+        OpcaoSelecionada opcaoSelecionada;
         do
         {
             Console.Clear();
-            Console.WriteLine("Menu:");
+            Util.CabecalhoMenu("Menu");
             Console.WriteLine("[1] - Abrir Restaurante");
             Console.WriteLine("[2] - Listar Mesas");
             Console.WriteLine("[3] - Abrir Mesa");
@@ -21,40 +22,39 @@ class Program
             Console.WriteLine("[8] - Cardápio");
             Console.WriteLine("[9] - Sair");
 
-            opcao = int.Parse(Console.ReadLine());
+            opcaoSelecionada = (OpcaoSelecionada)int.Parse(Console.ReadLine());
+            
 
-            switch (opcao)
+            switch (opcaoSelecionada)
             {
-                case 1:
-                    OpcaoAbrirRestaurante();
+                case OpcaoSelecionada.AbrirRestaurante:
+                    AbrirRestaurante();
                     break;
-                case 2:
-                    OpcaoListarMesas();
+                case OpcaoSelecionada.ListarMesas:
+                    ListarMesas();
                     break;
-                case 3:
-                    OpcaoAbrirMesa();
+                case OpcaoSelecionada.AbrirMesa:
+                    AbrirMesa();
                     break;
-                case 4:
-                    OpcaoAdicionarItemComanda();
+                case OpcaoSelecionada.AdicionarItemComanda:
+                    AdicionarItemComanda();
                     break;
-                case 5:
-                    OpcaoFecharMesa();
+                case OpcaoSelecionada.FecharMesa:
+                    FecharMesa();
                     break;
-                case 6:
+                case OpcaoSelecionada.FecharRestaurante:
                     Console.Clear();
                     restaurante.FecharRestaurante();
                     break;
-                case 7:
-                    OpcaoCadastrarProduto();
+                case OpcaoSelecionada.CadastrarProduto:
+                    CadastrarProduto();
                     break;
-                case 8:
+                case OpcaoSelecionada.Cardapio:
                     Console.Clear();
                     restaurante.ExibirCardapio();
-                    Console.WriteLine("");
-                    Console.WriteLine("Pressione qualquer tecla para continuar");
-                    Console.ReadKey();
+                    Util.Continuar();
                     break;
-                case 9:
+                case OpcaoSelecionada.Sair:
                     Console.Clear();
                     Console.WriteLine("Saindo...");
                     break;
@@ -63,9 +63,9 @@ class Program
                     Console.WriteLine("Opção inválida!");
                     break;
             }
-        } while (opcao != 9);
+        } while (opcaoSelecionada != OpcaoSelecionada.Sair);
 
-        void OpcaoAbrirRestaurante()
+        void AbrirRestaurante()
         {
             Console.Clear();
             Console.WriteLine("Quantas mesas o restaurante tem disponível?");
@@ -79,26 +79,26 @@ class Program
             {
                 Console.WriteLine("*** Erro ao tentar abrir o restaurante ***");
                 Console.WriteLine("Verifique se você digitou a quantidade de mesas corretamente.");
-                Console.ReadKey();
+                Util.Continuar();
             }
         }
 
-        void OpcaoListarMesas()
+        void ListarMesas()
         {
             Console.Clear();
             restaurante.ListarMesas();
         }
 
-        void OpcaoAbrirMesa()
+        void AbrirMesa()
         {
             Console.Clear();
-            restaurante.ListarMesas();
+            restaurante.ListarMesas(false);
             Console.WriteLine("Qual mesa deseja abrir?");
             int numeroMesaAbrir = int.Parse(Console.ReadLine()) - 1;
             restaurante.AbrirMesa(numeroMesaAbrir);
         }
 
-        void OpcaoAdicionarItemComanda()
+        void AdicionarItemComanda()
         {
             Console.Clear();
             Console.WriteLine("Qual mesa?");
@@ -107,7 +107,7 @@ class Program
             if (!restaurante.ExisteMesa(numeroMesa) || !restaurante.MesaAberta(numeroMesa))
             {
                 Console.WriteLine("Mesa não encontrada ou não está aberta.");
-                Console.ReadKey();
+                Util.Continuar();
             }
             else
             {
@@ -127,11 +127,11 @@ class Program
                     Produto produto = new Produto { Nome = nomeProduto, Codigo = codigoProduto, Preco = precoProduto };
                     restaurante.AdicionarItemNaComanda(numeroMesa, produto, quantidade);
                 }
-                Console.ReadLine();
+                
             }
         }
 
-        void OpcaoFecharMesa()
+        void FecharMesa()
         {
             Console.Clear();
             Console.WriteLine("Qual mesa deseja fechar?");
@@ -139,7 +139,7 @@ class Program
             restaurante.FecharMesa(numeroMesaFechar);
         }
         
-        void OpcaoCadastrarProduto()
+        void CadastrarProduto()
         {
             Console.Clear();
             Console.WriteLine("Nome do produto:");
@@ -148,6 +148,19 @@ class Program
             decimal precoProduto = decimal.Parse(Console.ReadLine());
             restaurante.CadastrarProduto(nomeProduto, precoProduto);
         }
+
+    }
+    enum OpcaoSelecionada
+    {
+        AbrirRestaurante = 1,
+        ListarMesas,
+        AbrirMesa,
+        AdicionarItemComanda,
+        FecharMesa,
+        FecharRestaurante,
+        CadastrarProduto,
+        Cardapio,
+        Sair
     }
 
 
