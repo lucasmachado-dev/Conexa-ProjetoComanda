@@ -150,7 +150,7 @@ namespace prjComanda.Models
 
         public void CadastrarProduto(string nome, decimal preco)
         {
-            int codigo = produtos.Count;
+            int codigo = produtos.Count+1;
             produtos.Add(new Produto() { Codigo = codigo.ToString(), Nome = nome, Preco = preco });
         }
 
