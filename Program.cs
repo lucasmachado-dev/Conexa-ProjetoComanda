@@ -8,6 +8,8 @@ class Program
         Restaurante restaurante = new Restaurante();
 
         OpcaoSelecionada opcaoSelecionada;
+        
+        
         do
         {
             Console.Clear();
@@ -22,7 +24,7 @@ class Program
             Console.WriteLine("[8] - Cardápio");
             Console.WriteLine("[9] - Sair");
 
-            opcaoSelecionada = (OpcaoSelecionada)int.Parse(Console.ReadLine());
+            opcaoSelecionada = LerOpcao(); 
             
 
             switch (opcaoSelecionada)
@@ -75,7 +77,7 @@ class Program
                 restaurante.AbrirRestaurante(quantidadeMesas);
 
             }
-            catch
+            catch (FormatException)
             {
                 Console.WriteLine("*** Erro ao tentar abrir o restaurante ***");
                 Console.WriteLine("Verifique se você digitou a quantidade de mesas corretamente.");
@@ -94,40 +96,49 @@ class Program
             Console.Clear();
             restaurante.ListarMesas(false);
             Console.WriteLine("Qual mesa deseja abrir?");
-            int numeroMesaAbrir = int.Parse(Console.ReadLine()) - 1;
-            restaurante.AbrirMesa(numeroMesaAbrir);
+            int numeroMesaAbrir;
+            if (int.TryParse(Console.ReadLine(), out numeroMesaAbrir) && restaurante.ExisteMesa(numeroMesaAbrir - 1))
+            {
+                restaurante.AbrirMesa(numeroMesaAbrir - 1);
+            }
+            else
+            {
+                Console.WriteLine("Mesa inválida!");
+                Util.Continuar();
+            }
         }
 
         void AdicionarItemComanda()
         {
             Console.Clear();
             Console.WriteLine("Qual mesa?");
-            int numeroMesa = int.Parse(Console.ReadLine()) - 1;
-
-            if (!restaurante.ExisteMesa(numeroMesa) || !restaurante.MesaAberta(numeroMesa))
+            int numeroMesa;
+            if (int.TryParse(Console.ReadLine(), out numeroMesa) && restaurante.ExisteMesa(numeroMesa - 1) && restaurante.MesaAberta(numeroMesa - 1))
             {
-                Console.WriteLine("Mesa não encontrada ou não está aberta.");
-                Util.Continuar();
-            }
-            else
-            {
-
                 restaurante.ExibirCardapio();
-                Console.WriteLine("");
                 Console.WriteLine("Código do produto:");
                 string codigoProduto = Console.ReadLine();
 
                 Produto p1 = restaurante.BuscarProduto(codigoProduto);
                 if (p1 != null)
                 {
-                    string nomeProduto = p1.Nome;
-                    decimal precoProduto = p1.Preco;
                     Console.WriteLine("Quantidade:");
-                    int quantidade = int.Parse(Console.ReadLine());
-                    Produto produto = new Produto { Nome = nomeProduto, Codigo = codigoProduto, Preco = precoProduto };
-                    restaurante.AdicionarItemNaComanda(numeroMesa, produto, quantidade);
+                    if (int.TryParse(Console.ReadLine(), out int quantidade))
+                    {
+                        Produto produto = new Produto { Nome = p1.Nome, Codigo = p1.Codigo, Preco = p1.Preco };
+                        restaurante.AdicionarItemNaComanda(numeroMesa - 1, produto, quantidade);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Quantidade inválida!");
+                        Util.Continuar();
+                    }
                 }
-                
+            }
+            else
+            {
+                Console.WriteLine("Mesa não encontrada ou não está aberta.");
+                Util.Continuar();
             }
         }
 
@@ -135,8 +146,15 @@ class Program
         {
             Console.Clear();
             Console.WriteLine("Qual mesa deseja fechar?");
-            int numeroMesaFechar = int.Parse(Console.ReadLine()) - 1;
-            restaurante.FecharMesa(numeroMesaFechar);
+            int numeroMesaFechar;
+            if (int.TryParse(Console.ReadLine(), out numeroMesaFechar) && restaurante.ExisteMesa(numeroMesaFechar - 1))
+            {
+                restaurante.FecharMesa(numeroMesaFechar - 1);
+            }
+            else
+            {
+                Console.WriteLine("Mesa inválida!");
+            }
         }
         
         void CadastrarProduto()
@@ -145,11 +163,34 @@ class Program
             Console.WriteLine("Nome do produto:");
             string nomeProduto = Console.ReadLine();
             Console.WriteLine("Preço do produto:");
-            decimal precoProduto = decimal.Parse(Console.ReadLine());
-            restaurante.CadastrarProduto(nomeProduto, precoProduto);
+            if (decimal.TryParse(Console.ReadLine(), out decimal precoProduto))
+            {
+                restaurante.CadastrarProduto(nomeProduto, precoProduto);
+            }
+            else
+            {
+                Console.WriteLine("Preço inválido!");
+                Util.Continuar();
+            }
         }
 
     }
+
+    private static OpcaoSelecionada LerOpcao()
+    {
+        Console.WriteLine("Escolha uma opção:");
+        try
+        {
+            return (OpcaoSelecionada)int.Parse(Console.ReadLine());
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Opção inválida! Digite apenas números.");
+            Console.ReadKey();
+            return OpcaoSelecionada.Sair;
+        }
+    }
+
     enum OpcaoSelecionada
     {
         AbrirRestaurante = 1,

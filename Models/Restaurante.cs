@@ -1,4 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace prjComanda.Models
 {
     public class Restaurante
@@ -17,10 +20,7 @@ namespace prjComanda.Models
             if (quantidadeMesas > 0)
             {
                 TotalVendas = 0;
-                for (int i = 0; i < quantidadeMesas; i++)
-                {
-                    mesas.Add(new Mesa());
-                }
+                mesas.AddRange(Enumerable.Range(0, quantidadeMesas).Select(_ => new Mesa()));
                 Console.WriteLine("Restaurante aberto com sucesso!");
             }
             else
@@ -32,16 +32,14 @@ namespace prjComanda.Models
 
         public void ListarMesas(bool continuar = true)
         {
-            for (int i = 0; i < mesas.Count; i++)
+            foreach (var mesa in mesas)
             {
-                Console.WriteLine($"Mesa {i + 1} - {(mesas[i].Ocupada ? "Ocupada" : "Disponível")}");
-
+                Console.WriteLine($"Mesa {mesas.IndexOf(mesa) + 1} - {(mesa.Ocupada ? "Ocupada" : "Disponível")}");
             }
             if (continuar)
             {
                 Util.Continuar();
             }
-
         }
 
         public void AbrirMesa(int numeroMesa)
@@ -64,7 +62,7 @@ namespace prjComanda.Models
         {
             if (numeroMesa >= 0 && numeroMesa < mesas.Count)
             {
-                Mesa mesa = mesas[numeroMesa];
+                var mesa = mesas[numeroMesa];
                 if (mesa.Ocupada)
                 {
                     mesa.Comanda.AdicionarItem(produto, quantidade);
@@ -88,12 +86,12 @@ namespace prjComanda.Models
         {
             if (numeroMesa >= 0 && numeroMesa < mesas.Count)
             {
-                Mesa mesa = mesas[numeroMesa];
+                var mesa = mesas[numeroMesa];
                 if (mesa.Ocupada)
                 {
                     mesa.Ocupada = false;
                     decimal totalMesa = mesa.Comanda.CalcularTotal();
-                    TotalVendas += + totalMesa;
+                    TotalVendas += totalMesa;
                     mesa.Comanda.ListarItensComanda();
                     Console.WriteLine("".PadRight(60, '-'));
                     Console.WriteLine($"Total da mesa {numeroMesa + 1}: R${totalMesa}");
@@ -115,14 +113,7 @@ namespace prjComanda.Models
 
         public void FecharRestaurante()
         {
-            foreach (Mesa mesa in mesas)
-            {
-                if (mesa.Ocupada)
-                {
-                    TotalVendas += mesa.Comanda.CalcularTotal();
-                    mesa.Ocupada = false;
-                }
-            }
+            TotalVendas += mesas.Where(m => m.Ocupada).Sum(m => m.Comanda.CalcularTotal());
             Console.WriteLine($"Total de vendas do dia: R${TotalVendas}");
             mesas.Clear();
             Util.Continuar();
@@ -130,37 +121,40 @@ namespace prjComanda.Models
 
         public void CriarProdutos()
         {
-            produtos.Add(new Produto() { Codigo = "1", Nome = "Cerveja 600ML", Preco = 12.9M });
-            produtos.Add(new Produto() { Codigo = "2", Nome = "Refrigerante lata", Preco = 5.5M });
-            produtos.Add(new Produto() { Codigo = "3", Nome = "Batata Frita 500g", Preco = 28.9M });
-            produtos.Add(new Produto() { Codigo = "4", Nome = "Água", Preco = 5M });
-            produtos.Add(new Produto() { Codigo = "5", Nome = "Sanduíche", Preco = 10.9M });
-            produtos.Add(new Produto() { Codigo = "6", Nome = "Suco (Copo 300ml)", Preco = 7.9M });
+            produtos.AddRange(new List<Produto>
+            {
+                new Produto() { Codigo = "1", Nome = "Cerveja 600ML", Preco = 12.9M },
+                new Produto() { Codigo = "2", Nome = "Refrigerante lata", Preco = 5.5M },
+                new Produto() { Codigo = "3", Nome = "Batata Frita 500g", Preco = 28.9M },
+                new Produto() { Codigo = "4", Nome = "Água", Preco = 5M },
+                new Produto() { Codigo = "5", Nome = "Sanduíche", Preco = 10.9M },
+                new Produto() { Codigo = "6", Nome = "Suco (Copo 300ml)", Preco = 7.9M }
+            });
         }
 
         public void ExibirCardapio()
         {
             Util.CabecalhoMenu("Cardápio");
-            Console.WriteLine("");
-            for (int i = 0; i < produtos.Count; i++)
+            Console.WriteLine();
+            foreach (var produto in produtos)
             {
-                Console.WriteLine($"{produtos[i].Codigo.PadLeft(5, ' ')} : {produtos[i].Nome.PadRight(30, '.')} - {produtos[i].Preco.ToString("C", CultureInfo.CurrentCulture)}");
+                Console.WriteLine($"{produto.Codigo.PadLeft(5, ' ')} : {produto.Nome.PadRight(30, '.')} - {produto.Preco.ToString("C")}");
             }
         }
 
         public void CadastrarProduto(string nome, decimal preco)
         {
-            int codigo = produtos.Count+1;
-            produtos.Add(new Produto() { Codigo = codigo.ToString(), Nome = nome, Preco = preco });
+            produtos.Add(new Produto() { Codigo = (produtos.Count + 1).ToString(), Nome = nome, Preco = preco });
         }
 
         public Produto BuscarProduto(string codigo)
         {
-            Produto prod = produtos.Find(p => p.Codigo == codigo);
-            if (prod != null)
+            var produto = produtos.FirstOrDefault(p => p.Codigo == codigo);
+            if (produto != null)
             {
-                return prod;
+                return produto;
             }
+            else
             {
                 Console.WriteLine("Produto não encontrado.");
                 return null;
@@ -177,5 +171,4 @@ namespace prjComanda.Models
             return (mesas[codigo].Ocupada);
         }
     }
-
 }
